@@ -16,10 +16,19 @@
         </canvas>
 
         <button type="submit" id="imageDrawing">Enable drawing</button>
-    
+        <form id="colorPicker">
+        <input type="radio" name="colors" id="blackColor" value="black"/>Black
+        <input type="radio" name="colors" id="redColor" value="red"/>Red
+        <input type="radio" name="colors" id="greenColor" value="green" />Green
+        <input type="radio" name="colors" id="transparent" value="transparent" />Disable
+        </form><br>
+        Brightness<input id="brightnessRange" type="range" min="-100" max="100" value="0" ></input>
+        Contrast<input id="contrastRange" type="range" min="-100" max="200" value="0" ></input>
+        Saturation<input id="saturationRange" type="range" min="-100" max="200" value="0" ></input>
+        
     </div>
 
-<script src="https://code.jquery.com/jquery-3.3.1.min.js"   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <script>
 
     // image loader to canvas
@@ -28,12 +37,12 @@
     imageLoader.addEventListener('change', handleImage, false);
     let canvas = document.querySelector('#uploadedImg');
     let ctx = canvas.getContext('2d');
+    let img = new Image();
 
     function handleImage(e) {
         let reader = new FileReader();
         reader.onload = function(event)
         {
-            let img = new Image();
             img.onload = function()
             {
                 ctx.drawImage(img, 0, 0);  
@@ -45,14 +54,13 @@
 
     
     //  drawing
-        
-    document.querySelector('#imageDrawing').onclick = function () {
 
+    document.querySelector('#imageDrawing').onclick = function () {
     let isDrawing = false;
+    let type = document.getElementsByName("colors");
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
     ctx.lineWidth = 2;
-    ctx.strokeStyle = "#000000";
 
     canvas.addEventListener('mousedown', (e) => {
     isDrawing = true;
@@ -63,6 +71,19 @@
     canvas.addEventListener('mouseout', () => isDrawing = false);
     
     function draw(e) {
+        if(type[0].checked){
+            ctx.strokeStyle = "#000000";
+        }
+        else if (type[1].checked){
+            ctx.strokeStyle = '#f44242';
+        }
+        else if (type[2].checked){
+            ctx.strokeStyle = '#41f465';
+        }
+        else if (type[3].checked){
+            ctx.strokeStyle = 'transparent';
+        }
+
         if(!isDrawing) return;    
         ctx.beginPath();
         ctx.moveTo(lastX, lastY);
@@ -73,8 +94,52 @@
 }
 
     //  brightness 
-    //  contrast 
+    
+    let brightOldVal;
+
+    brightnessRange.addEventListener('mousemove', () => {
+    if (brightnessRange.value !== brightOldVal) {
+        setBrightness(Number(brightnessRange.value));
+    }
+        brightOldVal = Number(brightnessRange.value);
+    });
+
+    function setBrightness(value) {
+    ctx.filter = `brightness(${value + 100}%)`;
+    ctx.drawImage(img, 0, 0);
+    }
+
+    //  contrast
+
+    let contrOldVal;
+
+    contrastRange.addEventListener('mousemove', () => {
+        if (contrastRange.value !== contrOldVal) {
+        setContrast(Number(contrastRange.value));
+    }
+        contrOldVal = Number(contrastRange.value);
+    });
+
+    function setContrast(value) {
+        ctx.filter = `contrast(${value + 100}%)`;
+        ctx.drawImage(img,0,0);
+    }
+
     //  saturation 
+    
+    let satOldVal;
+
+    saturationRange.addEventListener('mousemove', () => {
+        if (saturationRange.value !== satOldVal) {
+        setSaturation(Number(saturationRange.value));
+    }
+        satOldVal = Number(saturationRange.value);
+    });
+
+    function setSaturation(value) {
+        ctx.filter = `saturate(${value + 100}%)`;
+        ctx.drawImage(img,0,0);
+    }
     
 </script>
 </body>
